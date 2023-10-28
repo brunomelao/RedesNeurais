@@ -1,0 +1,82 @@
+clear; close all; clc;
+format long; 
+
+% Declaração de entradas e saidas conhecidas
+x0=ones(1,35);
+x=(load('adalineEntrada.mat').x)';
+d=(load('adalineSaida.mat').d)';
+
+% Inicializar pesos de maneira aleatória
+w=rand(1,4);
+b=rand(1,1);
+
+% Aplicando o Neuronio Artificial pela primeira vez, usando funcao sinal
+u=w*x+b*x0;
+y=sign(u);
+
+% Cálculo do Erro
+Erro=(sum(d-u)^2)/2;
+
+%Definindo a tolerancia,a taxa de aprendizagem e a epoca do treinamento do
+%neuronio
+tol=10^-6;
+taxaAprend=0.0025;
+epoca=0;
+Erro_ant=0;
+vetErro(1)=Erro;
+
+%Loop para encontrar os melhores pesos e bias
+while abs(Erro-Erro_ant)>tol
+    Erro_ant=Erro;
+    epoca=epoca+1;
+    
+    %Cálculo do gradiente do Erro em relação a w e b
+    delta=-(d-u)*(1); % delta = dE/dy*dy/du 
+    dEw=delta*x'; 
+    dEb=delta*x0';
+    
+    %Atualizacao dos pesos e bias
+    w=w-taxaAprend*dEw;
+    b=b-taxaAprend*dEb;
+    
+    %Novo calculo do neuronio 
+    u=w*x+b*x0;
+    y=sign(u);
+    
+    %Atualização do erro
+    Erro=(sum(d-u)^2)/2;
+    vetErro(epoca+1)=Erro;
+end
+
+disp('Pesos do menor erro:');
+disp(w);
+disp('Bias do menor erro:');
+disp(b);
+disp('Época com o menor erro:');
+disp(epoca);
+disp('Menor erro encontrado:');
+disp(abs(Erro-Erro_ant));
+
+%Gráfico do erro quadratico medio em função do numero de epocas
+figure();
+plot(0:1:epoca,vetErro);
+
+% Teste dos pesos do treinamento 
+x=[
+1.6375
+-0.7911
+0.7537
+0.5515
+];
+w1= 1.315045675378901;
+w2=1.656664265694900;
+w3=-0.445735737401006;
+w4=-1.194937931533937;
+u=w1*x(1)+w2*x(2)+w3*x(3)+w4*x(4)+b;
+y=sign(u);
+if y==-1
+    disp('VÁLVULA A');
+end
+if y==1
+    disp('VALVULA B');
+end
